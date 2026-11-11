@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FillForMe</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div id="rec-strip"></div>
+  <header id="site-bar" class="site"></header>
+
+  <nav id="tabs" class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="record">Record</button>
+    <button class="tab" role="tab" data-tab="ai">AI Fill</button>
+  </nav>
+
+  <main id="view" class="view"></main>
+  <footer id="shortcuts" class="foot hidden"></footer>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="modal-root"></div>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

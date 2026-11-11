@@ -1,0 +1,10 @@
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Packaged builds for the Chrome Web Store
+*.zip
+*.crx
+*.pem

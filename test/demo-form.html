@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AquaLab – New Water Testing Order (FillForMe demo)</title>
+<style>
+  :root { --bg:#f5f6fa; --card:#fff; --text:#1d2030; --muted:#6b7085; --line:#dfe2ec; --brand:#0f7b8a; --err:#d93636; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14161f; --card:#1d2030; --text:#e9eaf2; --muted:#9aa0b5; --line:#2e3245; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--brand); color:#fff; padding:18px 24px; }
+  header h1 { margin:0; font-size:20px; } header p { margin:4px 0 0; opacity:.85; font-size:13px; }
+  main { max-width:820px; margin:24px auto; padding:0 16px; }
+  .progress { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .progress span { flex:1; min-width:90px; text-align:center; font-size:12px; padding:6px 4px; border-radius:6px; background:var(--line); color:var(--muted); }
+  .progress span.active { background:var(--brand); color:#fff; } .progress span.done { background:#bfe6ea; color:#0b4f58; }
+  form { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; }
+  section h2 { margin:0 0 4px; font-size:18px; } section > p.lead { margin:0 0 18px; color:var(--muted); font-size:13px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; }
+  .full { grid-column:1 / -1; }
+  @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+  .field label, .field .lbl { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+  .req::after { content:" *"; color:var(--err); }
+  input[type=text], input[type=email], input[type=tel], input[type=url], input[type=number], input[type=date], input[type=time], select, textarea, .editable, .combo {
+    width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; background:var(--card); color:var(--text); }
+  textarea { min-height:80px; resize:vertical; }
+  .editable { min-height:70px; }
+  small.help { display:block; color:var(--muted); font-size:12px; margin-top:3px; }
+  .choices { display:flex; flex-wrap:wrap; gap:6px 16px; padding-top:4px; }
+  .choices label { font-weight:400; display:flex; gap:6px; align-items:center; margin:0; }
+  fieldset { border:none; padding:0; margin:0; } legend { font-weight:600; font-size:13px; padding:0; margin-bottom:4px; }
+  .error { color:var(--err); font-size:12px; margin-top:3px; display:none; } .invalid .error { display:block; }
+  .invalid input, .invalid select, .invalid .combo { border-color:var(--err); }
+  .nav { display:flex; justify-content:space-between; margin-top:22px; padding-top:16px; border-top:1px solid var(--line); }
+  button { font:inherit; font-weight:600; padding:10px 20px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; }
+  button.primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .combo-wrap { position:relative; }
+  .combo { cursor:pointer; text-align:left; min-height:40px; }
+  .combo.placeholder { color:var(--muted); }
+  ul[role=listbox] { position:absolute; z-index:5; left:0; right:0; top:100%; margin:4px 0 0; padding:4px; list-style:none; background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,.12); }
+  li[role=option] { padding:8px 10px; border-radius:6px; cursor:pointer; } li[role=option]:hover { background:var(--bg); }
+  .state-box { background:var(--bg); border:1px dashed var(--line); border-radius:8px; padding:10px; font:12px/1.4 ui-monospace, Menlo, monospace; white-space:pre-wrap; }
+  #result { display:none; } #result pre { background:#0f1220; color:#cde7ff; padding:16px; border-radius:10px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AquaLab · New Water Testing Order</h1>
+  <p>FillForMe demo form – 6 steps, ~40 fields, every common field type. Serve it from localhost (see README).</p>
+</header>
+<main>
+  <div class="progress" id="progress">
+    <span data-s="1">1 · Customer</span><span data-s="2">2 · Address</span><span data-s="3">3 · Samples</span>
+    <span data-s="4">4 · Billing</span><span data-s="5">5 · Contacts</span><span data-s="6">6 · Review</span>
+  </div>
+
+  <form id="order" novalidate>
+    <!-- STEP 1: Customer -->
+    <section data-step="1">
+      <h2>Customer details</h2>
+      <p class="lead">Who is ordering the test?</p>
+      <div class="grid">
+        <div class="field"><label for="fullName" class="req">Full name</label><input type="text" id="fullName" name="fullName" required autocomplete="name"><div class="error">Required</div></div>
+        <div class="field"><label for="email" class="req">Email</label><input type="email" id="email" name="email" required><div class="error">Enter a valid email</div></div>
+        <div class="field"><label for="phone" class="req">Mobile number</label><input type="tel" id="phone" name="phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="10-digit mobile"><small class="help">Indian mobile, 10 digits, starts with 6–9</small><div class="error">10 digits starting with 6–9</div></div>
+        <div class="field"><label for="hotelName">Hotel / business name</label><input type="text" id="hotelName" name="hotelName"></div>
+        <div class="field full">
+          <fieldset><legend class="req">Customer type</legend>
+            <div class="choices">
+              <label><input type="radio" name="customerType" value="hotel" required> Hotel</label>
+              <label><input type="radio" name="customerType" value="restaurant"> Restaurant</label>
+              <label><input type="radio" name="customerType" value="hospital"> Hospital</label>
+              <label><input type="radio" name="customerType" value="residential"> Residential society</label>
+            </div><div class="error">Choose one</div>
+          </fieldset>
+        </div>
+        <div class="field"><label for="dob">Contact person date of birth</label><input type="date" id="dob" name="dob" max="2008-12-31"></div>
+        <div class="field"><label for="website">Website</label><input type="url" id="website" name="website" placeholder="https://"></div>
+        <div class="field"><label for="contactPref">Preferred contact method</label>
+          <select id="contactPref" name="contactPref"><option value="">Select…</option><option value="email">Email</option><option value="phone">Phone call</option><option value="whatsapp">WhatsApp</option></select></div>
+      </div>
+    </section>
+
+    <!-- STEP 2: Address -->
+    <section data-step="2" hidden>
+      <h2>Site address</h2>
+      <p class="lead">Where should we collect the samples?</p>
+      <div class="grid">
+        <div class="field full"><label for="address1" class="req">Address line 1</label><input type="text" id="address1" name="address1" required><div class="error">Required</div></div>
+        <div class="field full"><label for="address2">Address line 2</label><input type="text" id="address2" name="address2"></div>
+        <div class="field"><label for="country">Country</label>
+          <select id="country" name="country"><option value="">Select…</option><option>India</option><option>United States</option><option>United Kingdom</option></select></div>
+        <div class="field"><label for="state" class="req">State</label>
+          <select id="state" name="state" required><option value="">Select state…</option>
+            <option value="MH">Maharashtra</option><option value="GJ">Gujarat</option><option value="KA">Karnataka</option><option value="DL">Delhi</option><option value="TN">Tamil Nadu</option></select><div class="error">Required</div></div>
+        <div class="field"><label for="city" class="req">City</label>
+          <select id="city" name="city" required><option value="">Select a state first</option></select>
+          <small class="help">Loads after you pick a state (1 second delay)</small><div class="error">Required</div></div>
+        <div class="field"><label for="pincode" class="req">Pincode</label><input type="text" id="pincode" name="pincode" required pattern="[1-9][0-9]{5}" maxlength="6" inputmode="numeric"><div class="error">6-digit pincode</div></div>
+        <div class="field"><label for="landmark">Landmark</label><input type="text" id="landmark" name="landmark"></div>
+        <div class="field">
+          <fieldset><legend>Address type</legend>
+            <div class="choices"><label><input type="radio" name="addressType" value="office"> Office</label><label><input type="radio" name="addressType" value="site"> Site / Plant</label></div>
+          </fieldset>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: Samples -->
+    <section data-step="3" hidden>
+      <h2>Sample details</h2>
+      <p class="lead">Tell us about the water samples.</p>
+      <div class="grid">
+        <div class="field"><label for="sampleId" class="req">Sample ID</label><input type="text" id="sampleId" name="sampleId" required pattern="WT-[0-9]{4}" placeholder="WT-1234"><small class="help">Format: WT- followed by 4 digits</small><div class="error">Format WT-1234</div></div>
+        <div class="field"><label for="sampleType">Sample type</label>
+          <select id="sampleType" name="sampleType"><option value="">Choose…</option><option value="drinking">Drinking water</option><option value="pool">Swimming pool</option><option value="waste">Waste water</option><option value="boiler">Boiler feed</option></select></div>
+        <div class="field"><label for="sampleCount" class="req">Number of samples</label><input type="number" id="sampleCount" name="sampleCount" min="1" max="20" required><small class="help">Between 1 and 20</small><div class="error">1 to 20</div></div>
+        <div class="field"><label for="collectionDate" class="req">Collection date</label><input type="date" id="collectionDate" name="collectionDate" required><div class="error">Required</div></div>
+        <div class="field"><label for="collectionTime">Collection time</label><input type="time" id="collectionTime" name="collectionTime"></div>
+        <div class="field"><label for="temperature">Water temperature (°C)</label><input type="number" id="temperature" name="temperature" min="0" max="40" step="0.1"></div>
+        <div class="field full">
+          <fieldset><legend>Water source</legend>
+            <div class="choices">
+              <label><input type="radio" name="source" value="borewell"> Borewell</label><label><input type="radio" name="source" value="municipal"> Municipal supply</label>
+              <label><input type="radio" name="source" value="tanker"> Tanker</label><label><input type="radio" name="source" value="ro"> RO plant</label>
+            </div>
+          </fieldset>
+        </div>
+        <div class="field full">
+          <fieldset><legend>Tests requested</legend>
+            <div class="choices">
+              <label><input type="checkbox" name="tests" value="ph"> pH</label><label><input type="checkbox" name="tests" value="tds"> TDS</label>
+              <label><input type="checkbox" name="tests" value="hardness"> Hardness</label><label><input type="checkbox" name="tests" value="bacteria"> Bacteria (coliform)</label>
+              <label><input type="checkbox" name="tests" value="metals"> Heavy metals</label>
+            </div>
+          </fieldset>
+        </div>
+        <div class="field full"><label for="sampleNotes">Notes for the lab</label><textarea id="sampleNotes" name="sampleNotes" maxlength="300"></textarea><small class="help">Max 300 characters</small></div>
+      </div>
+    </section>
+
+    <!-- STEP 4: Billing -->
+    <section data-step="4" hidden>
+      <h2>Billing</h2>
+      <p class="lead">Invoice details.</p>
+      <div class="grid">
+        <div class="field"><label for="pan" class="req">PAN</label><input type="text" id="pan" name="pan" required pattern="[A-Z]{5}[0-9]{4}[A-Z]" maxlength="10" placeholder="ABCDE1234F"><small class="help">10 characters, e.g. ABCDE1234F</small><div class="error">Invalid PAN</div></div>
+        <div class="field"><label for="gstin">GSTIN</label><input type="text" id="gstin" name="gstin" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]" maxlength="15"><small class="help">Optional, 15 characters</small><div class="error">Invalid GSTIN</div></div>
+        <div class="field"><label for="billingEmail">Billing email</label><input type="email" id="billingEmail" name="billingEmail"></div>
+        <div class="field">
+          <span class="lbl req" id="payLabel">Payment mode</span>
+          <div class="combo-wrap">
+            <div class="combo placeholder" id="payCombo" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="payLabel">Select payment mode</div>
+            <ul role="listbox" id="payList" hidden>
+              <li role="option" data-value="upi">UPI</li><li role="option" data-value="card">Credit / debit card</li>
+              <li role="option" data-value="neft">Bank transfer (NEFT)</li><li role="option" data-value="cash">Cash on collection</li>
+            </ul>
+          </div>
+          <input type="hidden" name="paymentMode" id="paymentMode">
+          <small class="help">Custom (div-based) dropdown</small><div class="error">Required</div>
+        </div>
+        <div class="field"><label for="amount" class="req">Quoted amount (₹)</label><input type="number" id="amount" name="amount" min="100" max="100000" required><div class="error">₹100 – ₹1,00,000</div></div>
+        <div class="field"><label for="dueDate" class="req">Payment due date</label><input type="date" id="dueDate" name="dueDate" required><div class="error">Required, today or later</div></div>
+        <div class="field full"><span class="lbl" id="invNotesLabel">Invoice notes</span><div class="editable" id="invoiceNotes" contenteditable="true" aria-labelledby="invNotesLabel"></div><small class="help">Rich text (contenteditable)</small></div>
+      </div>
+    </section>
+
+    <!-- STEP 5: React-like controlled inputs -->
+    <section data-step="5" hidden>
+      <h2>Contacts (controlled inputs)</h2>
+      <p class="lead">These inputs behave like React controlled components: setting <code>.value</code> directly is ignored and reverted. Only proper event dispatching updates the component state shown below.</p>
+      <div class="grid">
+        <div class="field"><label for="contactPerson" class="req">Contact person</label><input type="text" id="contactPerson" name="contactPerson" data-controlled required><div class="error">Required</div></div>
+        <div class="field"><label for="designation">Designation</label><input type="text" id="designation" name="designation" data-controlled></div>
+        <div class="field"><label for="altPhone">Alternate phone</label><input type="tel" id="altPhone" name="altPhone" data-controlled></div>
+        <div class="field full"><label for="accessInstructions">Site access instructions</label><textarea id="accessInstructions" name="accessInstructions" data-controlled></textarea></div>
+        <div class="field full"><div class="lbl">Component state</div><div class="state-box" id="stateBox">{}</div></div>
+      </div>
+    </section>
+
+    <!-- STEP 6: Review & consent -->
+    <section data-step="6" hidden>
+      <h2>Report preferences &amp; consent</h2>
+      <p class="lead">Almost done.</p>
+      <div class="grid">
+        <div class="field"><label for="reportFormat">Report format</label>
+          <select id="reportFormat" name="reportFormat"><option value="pdf">PDF</option><option value="excel">Excel</option><option value="print">Printed copy</option></select></div>
+        <div class="field">
+          <fieldset><legend>Report delivery</legend>
+            <div class="choices"><label><input type="radio" name="delivery" value="email" checked> Email</label><label><input type="radio" name="delivery" value="courier"> Courier</label><label><input type="radio" name="delivery" value="pickup"> Pickup</label></div>
+          </fieldset>
+        </div>
+        <div class="field"><label for="priority">Priority (1–5)</label><input type="range" id="priority" name="priority" min="1" max="5" value="3"></div>
+        <div class="field"><label for="idProof">Upload ID proof</label><input type="file" id="idProof" name="idProof"><small class="help">File uploads are not supported by FillForMe yet</small></div>
+        <div class="field full"><label for="signature" class="req">Type your name as signature</label><input type="text" id="signature" name="signature" required><div class="error">Required</div></div>
+        <div class="field full"><label><input type="checkbox" id="newsletter" name="newsletter"> Send me water quality tips by email</label></div>
+        <div class="field full"><label class="req"><input type="checkbox" id="agree" name="agree" required> I agree to the terms of service</label><div class="error">You must agree</div></div>
+      </div>
+    </section>
+
+    <div class="nav">
+      <button type="button" id="backBtn">← Back</button>
+      <div>
+        <button type="button" class="primary" id="nextBtn">Next →</button>
+        <button type="submit" class="primary" id="submitBtn" hidden>Submit order</button>
+      </div>
+    </div>
+  </form>
+
+  <div id="result">
+    <h2>✅ Order submitted</h2>
+    <p>Submitted data (as the server would receive it):</p>
+    <pre id="resultJson"></pre>
+    <button type="button" id="newOrder" class="primary">New order</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  const form = document.getElementById('order');
+  const steps = Array.from(form.querySelectorAll('section[data-step]'));
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  let current = 1;
+
+  /* ---------- React-like controlled inputs ----------
+     Mimics React's value tracker: React remembers the last value it set through the
+     element's own `value` property. An `input` event is ignored if the DOM value equals
+     the tracked value. So `el.value = 'x'; el.dispatchEvent(new Event('input'))` does
+     nothing, while the native prototype setter + input event updates the state. */
+  const componentState = {};
+  const stateBox = document.getElementById('stateBox');
+  function renderState() { stateBox.textContent = JSON.stringify(componentState, null, 2); }
+  document.querySelectorAll('[data-controlled]').forEach((el) => {
+    const proto = Object.getPrototypeOf(el);
+    const desc = Object.getOwnPropertyDescriptor(proto, 'value');
+    let tracked = '';
+    componentState[el.name] = '';
+    Object.defineProperty(el, 'value', {
+      configurable: true,
+      get() { return desc.get.call(this); },
+      set(v) { tracked = String(v); desc.set.call(this, v); },
+    });
+    el.addEventListener('input', () => {
+      const actual = desc.get.call(el);
+      if (actual === tracked) return;       // "no change" → React ignores the event
+      tracked = actual;
+      componentState[el.name] = actual;     // setState
+      renderState();
+    });
+    // Re-render on blur: the DOM always shows the component state (controlled).
+    el.addEventListener('blur', () => { el.value = componentState[el.name]; });
+  });
+  renderState();
+
+  /* ---------- dependent dropdown: cities load 1s after a state is chosen ---------- */
+  const CITIES = {
+    MH: ['Mumbai', 'Pune', 'Nagpur', 'Nashik'], GJ: ['Ahmedabad', 'Surat', 'Vadodara'],
+    KA: ['Bengaluru', 'Mysuru', 'Mangaluru'], DL: ['New Delhi', 'Dwarka'], TN: ['Chennai', 'Coimbatore', 'Madurai'],
+  };
+  const stateSel = document.getElementById('state');
+  const citySel = document.getElementById('city');
+  stateSel.addEventListener('change', () => {
+    citySel.innerHTML = '<option value="">Loading cities…</option>';
+    citySel.disabled = true;
+    const code = stateSel.value;
+    setTimeout(() => {
+      citySel.innerHTML = '<option value="">Select city…</option>' + (CITIES[code] || []).map((c) => `<option>${c}</option>`).join('');
+      citySel.disabled = false;
+    }, 1000);
+  });
+
+  /* ---------- custom dropdown (div-based, like react-select) ---------- */
+  const combo = document.getElementById('payCombo');
+  const list = document.getElementById('payList');
+  const payInput = document.getElementById('paymentMode');
+  function openList(open) { list.hidden = !open; combo.setAttribute('aria-expanded', String(open)); }
+  combo.addEventListener('click', () => openList(list.hidden));
+  combo.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openList(list.hidden); } if (e.key === 'Escape') openList(false); });
+  list.addEventListener('click', (e) => {
+    const li = e.target.closest('li[role=option]');
+    if (!li) return;
+    payInput.value = li.dataset.value;
+    combo.textContent = li.textContent;
+    combo.classList.remove('placeholder');
+    openList(false);
+  });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.combo-wrap')) openList(false); });
+
+  /* ---------- due date must be today or later ---------- */
+  const today = new Date();
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  document.getElementById('dueDate').min = iso(today);
+
+  /* ---------- validation ---------- */
+  function validateStep(n) {
+    const sec = steps[n - 1];
+    let ok = true;
+    sec.querySelectorAll('.field').forEach((f) => f.classList.remove('invalid'));
+    sec.querySelectorAll('input, select, textarea').forEach((el) => {
+      if (el.type === 'hidden' || el.type === 'file') return;
+      let valid = el.checkValidity();
+      if (el.dataset.controlled !== undefined && el.required) valid = !!componentState[el.name];
+      if (el.type === 'radio' && el.required) valid = !!sec.querySelector(`input[name="${el.name}"]:checked`);
+      if (!valid) { ok = false; el.closest('.field').classList.add('invalid'); }
+    });
+    if (n === 4 && !payInput.value) { ok = false; combo.closest('.field').classList.add('invalid'); }
+    return ok;
+  }
+
+  /* ---------- step navigation (SPA style, updates the #hash) ---------- */
+  function show(n, push = true) {
+    current = n;
+    steps.forEach((s, i) => (s.hidden = i !== n - 1));
+    document.querySelectorAll('#progress span').forEach((p) => {
+      const s = +p.dataset.s;
+      p.className = s === n ? 'active' : s < n ? 'done' : '';
+    });
+    backBtn.style.visibility = n === 1 ? 'hidden' : 'visible';
+    nextBtn.hidden = n === steps.length;
+    submitBtn.hidden = n !== steps.length;
+    if (push) history.pushState({ step: n }, '', '#step-' + n);
+    window.scrollTo(0, 0);
+  }
+  nextBtn.addEventListener('click', () => { if (validateStep(current)) show(current + 1); });
+  backBtn.addEventListener('click', () => show(current - 1));
+  window.addEventListener('popstate', (e) => show((e.state && e.state.step) || 1, false));
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!validateStep(current)) return;
+    const data = {};
+    new FormData(form).forEach((v, k) => {
+      if (v instanceof File) v = v.name || null;
+      if (k in data) data[k] = [].concat(data[k], v); else data[k] = v;
+    });
+    Object.assign(data, componentState);              // controlled inputs submit their state
+    data.invoiceNotes = document.getElementById('invoiceNotes').innerText.trim();
+    data.city = citySel.value;
+    document.getElementById('resultJson').textContent = JSON.stringify(data, null, 2);
+    form.hidden = true;
+    document.getElementById('progress').hidden = true;
+    document.getElementById('result').style.display = 'block';
+    history.pushState({ step: 'done' }, '', '#submitted');
+  });
+  document.getElementById('newOrder').addEventListener('click', () => { location.hash = ''; location.reload(); });
+
+  // A fresh page always starts at step 1.
+  history.replaceState({ step: 1 }, '', location.pathname + location.search);
+  show(1, false);
+})();
+</script>
+</body>
+</html>

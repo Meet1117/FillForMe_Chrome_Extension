@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "FillForMe – Test Data Recorder & AI Form Filler",
+  "short_name": "FillForMe",
+  "version": "1.0.0",
+  "description": "Record a form once and replay it with fresh data, or let Groq AI fill any form with realistic test data.",
+  "minimum_chrome_version": "120",
+  "permissions": ["storage", "sidePanel", "scripting", "tabs", "activeTab"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "optional_host_permissions": ["http://*/*", "https://*/*", "file:///*"],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["prompt/enable.html"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open FillForMe",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "ai-fill": {
+      "suggested_key": { "default": "Alt+Shift+F", "windows": "Alt+Shift+F", "linux": "Alt+Shift+F", "chromeos": "Alt+Shift+F", "mac": "Alt+Shift+F" },
+      "description": "AI fill the current page with the saved field selection"
+    },
+    "play-last": {
+      "suggested_key": { "default": "Alt+Shift+P", "windows": "Alt+Shift+P", "linux": "Alt+Shift+P", "chromeos": "Alt+Shift+P", "mac": "Alt+Shift+P" },
+      "description": "Play the last-used recording for this site"
+    },
+    "toggle-recording": {
+      "suggested_key": { "default": "Alt+Shift+R", "windows": "Alt+Shift+R", "linux": "Alt+Shift+R", "chromeos": "Alt+Shift+R", "mac": "Alt+Shift+R" },
+      "description": "Start or stop recording"
+    }
+  }
+}

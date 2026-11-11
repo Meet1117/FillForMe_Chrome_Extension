@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="geometricPrecision">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14B88A"/>
+      <stop offset="1" stop-color="#0B6E79"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="32" height="32" rx="7" fill="url(#bg)"/>
+  <!-- filled field (on whole pixels at 16px and 32px) -->
+  <rect x="4" y="6" width="24" height="8" rx="2" fill="#fff"/>
+  <!-- half-filled field + text cursor -->
+  <rect x="4" y="18" width="12" height="8" rx="2" fill="#fff"/>
+  <rect x="18" y="16" width="2" height="12" rx="1" fill="#fff"/>
+</svg>

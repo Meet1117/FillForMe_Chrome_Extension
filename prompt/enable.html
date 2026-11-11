@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Turn on FillForMe</title>
+  <style>
+    :root { --bg: #fff; --text: #202124; --muted: #5f6368; --line: #dadce0; --accent: #1a73e8; --accent-text: #fff; --hover: #f1f3f4; color-scheme: light; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #292a2d; --text: #e8eaed; --muted: #9aa0a6; --line: #3c4043; --accent: #8ab4f8; --accent-text: #202124; --hover: #35363a; color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: transparent; }
+    body { font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+    .box { height: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; }
+    h1 { font-size: 14px; font-weight: 600; margin: 0 0 4px; overflow-wrap: anywhere; }
+    p { margin: 0; color: var(--muted); }
+    .status { min-height: 18px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+    .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: auto; }
+    button { font: inherit; height: 28px; padding: 0 12px; border-radius: 4px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; }
+    button:hover { background: var(--hover); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+    button.primary:hover { filter: brightness(1.08); }
+    button:disabled { opacity: .5; cursor: default; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  </style>
+</head>
+<body>
+  <div class="box" role="dialog" aria-labelledby="title">
+    <h1 id="title">Turn on FillForMe for <span id="site"></span>?</h1>
+    <p>It only runs on sites you turn on. You can turn it off again in Settings.</p>
+    <div class="status" id="status" aria-live="polite"></div>
+    <div class="row">
+      <button type="button" id="notNow">Not now</button>
+      <button type="button" id="turnOn" class="primary">Turn on</button>
+    </div>
+  </div>
+  <script src="enable.js"></script>
+</body>
+</html>
