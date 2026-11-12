@@ -36,16 +36,20 @@
     "128": "icons/icon128.png"
   },
   "commands": {
+    "activate-site": {
+      "suggested_key": { "default": "Alt+A", "mac": "Alt+A" },
+      "description": "Turn on FillForMe for this site"
+    },
     "ai-fill": {
-      "suggested_key": { "default": "Alt+Shift+F", "windows": "Alt+Shift+F", "linux": "Alt+Shift+F", "chromeos": "Alt+Shift+F", "mac": "Alt+Shift+F" },
+      "suggested_key": { "default": "Alt+Shift+F", "mac": "Alt+Shift+F" },
       "description": "AI fill the current page with the saved field selection"
     },
     "play-last": {
-      "suggested_key": { "default": "Alt+Shift+P", "windows": "Alt+Shift+P", "linux": "Alt+Shift+P", "chromeos": "Alt+Shift+P", "mac": "Alt+Shift+P" },
+      "suggested_key": { "default": "Alt+Shift+R", "mac": "Alt+Shift+R" },
       "description": "Play the last-used recording for this site"
     },
     "toggle-recording": {
-      "suggested_key": { "default": "Alt+Shift+R", "windows": "Alt+Shift+R", "linux": "Alt+Shift+R", "chromeos": "Alt+Shift+R", "mac": "Alt+Shift+R" },
+      "suggested_key": { "default": "Alt+Shift+P", "mac": "Alt+Shift+P" },
       "description": "Start or stop recording"
     }
   }

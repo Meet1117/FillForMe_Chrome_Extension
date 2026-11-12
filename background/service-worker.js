@@ -23,9 +23,22 @@ const { Url } = globalThis.FPShared;
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(({ reason }) => {
   Sites.syncContentScripts().catch((e) => console.warn('[FillForMe] sync failed', e));
+  if (reason === 'install') checkShortcuts().catch(() => {});
 });
+
+/**
+ * Chrome sets the manifest's default shortcuts on install, but skips any key that
+ * Chrome or another extension already uses. If that happened, open the shortcuts
+ * page so the user can pick other keys straight away.
+ */
+async function checkShortcuts() {
+  const missing = (await chrome.commands.getAll()).filter((c) => DEFAULT_SHORTCUTS[c.name] && !c.shortcut);
+  if (!missing.length) return;
+  console.warn('[FillForMe] shortcuts not set (key already in use):', missing.map((c) => c.name).join(', '));
+  await chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+}
 chrome.runtime.onStartup.addListener(() => {
   Sites.syncContentScripts().catch(() => {});
 });
@@ -140,7 +153,7 @@ async function runArmedFill(tabId) {
     await tryTop(tabId, 'toast', `Filled ${res.filled} of ${res.total} fields${res.source === 'random' ? ' with random data' : ''}${res.submitted ? ` and clicked "${res.submitted}"` : ''}`, 'success');
   }
   await AI.hideBadges(tabId);
-  if (res.notice) await tryTop(tabId, 'toast', res.notice, 'info', 6000);
+  if (res.notice) await tryTop(tabId, 'toast', res.notice, 'info');
   notify({ type: 'ui:ai-filled', tabId, result: res });
 }
 
@@ -210,7 +223,12 @@ async function onPromptEnabled(tabId) {
   await chrome.storage.session.remove('pendingEnable');
   if (!pendingEnable || pendingEnable.tabId !== tabId) return;
   const tab = await getTab(tabId);
-  if (tab) setTimeout(() => onCommand(pendingEnable.command, tab), 300);
+  if (!tab) return;
+  if (pendingEnable.command === 'activate-site') {
+    await tryTop(tabId, 'toast', `FillForMe is on for ${Url.siteLabel(tab.url)}`, 'success');
+    return;
+  }
+  setTimeout(() => onCommand(pendingEnable.command, tab), 300);
 }
 
 /* ---------- message router ---------- */
@@ -314,6 +332,11 @@ async function onCommand(command, tabArg) {
     return;
   }
   try {
+    if (command === 'activate-site') {
+      await tryTop(tab.id, 'toast', `FillForMe is already on for ${Url.siteLabel(tab.url)}`, 'info');
+      return;
+    }
+
     if (command === 'toggle-recording') {
       const session = await Rec.getSession();
       if (session) return void (await Rec.stop());
@@ -345,7 +368,7 @@ async function onCommand(command, tabArg) {
       await Player.start(tab.id, rec.id, { runs: 1 });
     }
   } catch (e) {
-    await tryTop(tab.id, 'toast', String(e.message || e), 'error', 5000);
+    await tryTop(tab.id, 'toast', String(e.message || e), 'error');
   }
 }
 chrome.commands.onCommand.addListener(onCommand);
