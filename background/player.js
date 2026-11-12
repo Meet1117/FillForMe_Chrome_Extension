@@ -216,7 +216,7 @@ async function loop() {
           s.finishedAt = Date.now();
         });
         await tryTop(st.tabId, 'bar', null);
-        await tryTop(st.tabId, 'toast', `Form filled. Click "${st.heldSubmit}" when you're ready.`, 'success', 6000);
+        await tryTop(st.tabId, 'toast', `Form filled. Click "${st.heldSubmit}" when you're ready.`, 'success');
         notify({ type: 'ui:playback', state: st });
         break;
       }

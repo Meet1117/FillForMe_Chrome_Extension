@@ -13,6 +13,7 @@ export const CONTENT_FILES = [
   'shared/templates.js',
   'shared/generator.js',
   'shared/validator.js',
+  'shared/toast.js',
   'content/dom-utils.js',
   'content/scanner.js',
   'content/filler.js',

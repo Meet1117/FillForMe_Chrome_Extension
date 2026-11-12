@@ -237,12 +237,7 @@ textarea.input { height: auto; min-height: 60px; padding: 6px 8px; resize: verti
 .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; }
 .kbd { color: var(--text); font-weight: 600; }
 
-/* ---------- toasts, modal, menu ---------- */
-.toasts { position: fixed; left: 14px; right: 14px; bottom: 96px; display: flex; flex-direction: column; gap: 6px; z-index: 50; pointer-events: none; }
-.toast { background: var(--text); color: var(--bg); padding: 8px 12px; border-radius: 4px; pointer-events: auto; }
-.toast.error { background: var(--rec); color: #fff; }
-.toast .icon { display: none; }
-.toast.out { opacity: 0; transition: opacity .2s; }
+/* ---------- modal, menu (toasts: shared/toast.js) ---------- */
 .modal-back { position: fixed; inset: 0; background: rgba(0, 0, 0, .4); display: grid; place-items: center; z-index: 60; padding: 14px; }
 .modal { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 16px; width: 100%; max-width: 340px; box-shadow: 0 8px 24px rgba(0, 0, 0, .2); }
 .modal h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
