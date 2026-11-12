@@ -6,8 +6,7 @@
   "description": "Record a form once and replay it with fresh data, or let Groq AI fill any form with realistic test data.",
   "minimum_chrome_version": "120",
   "permissions": ["storage", "sidePanel", "scripting", "tabs", "activeTab"],
-  "host_permissions": ["https://api.groq.com/*"],
-  "optional_host_permissions": ["http://*/*", "https://*/*", "file:///*"],
+  "host_permissions": ["https://api.groq.com/*", "http://*/*", "https://*/*", "file:///*"],
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"

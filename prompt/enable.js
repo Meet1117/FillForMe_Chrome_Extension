@@ -2,9 +2,10 @@
  * "Turn on FillForMe for this site?" popup.
  *
  * Shown inside the page (as an iframe) when a keyboard shortcut is pressed on a site
- * FillForMe isn't allowed on yet. Because this is an extension page, the click on
- * "Turn on" is a user gesture that may open Chrome's permission prompt – something a
- * content script on the page could not do.
+ * FillForMe isn't turned on for. FillForMe already has site access from install, so
+ * "Turn on" normally just turns the site on. Only if the user limited FillForMe's site
+ * access in Chrome does it open Chrome's prompt, which needs this click (a user gesture
+ * that a content script on the page could not provide).
  */
 (function () {
   'use strict';
@@ -22,23 +23,25 @@
   }
 
   turnOn.addEventListener('click', () => {
-    // Must be called straight from the click (user gesture).
-    chrome.permissions.request({ origins: [pattern] }).then(async (granted) => {
-      if (!granted) {
-        status.textContent = 'FillForMe was not turned on. Press the shortcut again to retry.';
-        return;
-      }
-      turnOn.disabled = true;
-      status.textContent = 'Turned on.';
-      try {
-        // The worker registers the content scripts and runs the shortcut you pressed.
-        await chrome.runtime.sendMessage({ type: 'bg:prompt-enabled', tabId });
-      } finally {
-        close();
-      }
-    }).catch((e) => {
-      status.textContent = e.message;
-    });
+    chrome.permissions.contains({ origins: [pattern] })
+      .then((has) => has || chrome.permissions.request({ origins: [pattern] }))
+      .then(async (granted) => {
+        if (!granted) {
+          status.textContent = 'FillForMe was not turned on. Press the shortcut again to retry.';
+          return;
+        }
+        turnOn.disabled = true;
+        status.textContent = 'Turned on.';
+        try {
+          // The worker registers the content scripts and runs the shortcut you pressed.
+          await chrome.runtime.sendMessage({ type: 'bg:prompt-enabled', tabId, pattern });
+        } finally {
+          close();
+        }
+      })
+      .catch((e) => {
+        status.textContent = e.message;
+      });
   });
 
   document.getElementById('notNow').addEventListener('click', close);

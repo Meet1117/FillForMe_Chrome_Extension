@@ -18,14 +18,16 @@ Everything runs in a Chrome side panel that stays open while you click around th
 
 ## 2. Turn it on for your site
 
-For safety, FillForMe does nothing on a site until you allow it.
+For safety, FillForMe does nothing on a site until you turn it on there.
 
 1. Open your app (for example `http://localhost:3000`).
-2. In the side panel, click **Enable** (or **Turn on for this site**), then **Allow**.
+2. Press **Option+A** (Mac) or **Alt+A** (Windows / Linux). FillForMe turns on for the site straight away and confirms with a message at the bottom of the page. You can also click **Enable** (or **Turn on for this site**) in the side panel.
 
 You can see and remove sites any time in **Settings (⚙) → Sites**.
 
-If you press a FillForMe keyboard shortcut on a site that isn't turned on yet, a small popup appears on the page asking **Turn on FillForMe for this site?** Click **Turn on**, allow it in Chrome's prompt, and the shortcut you pressed runs straight away.
+If you press another FillForMe shortcut on a site that isn't turned on yet, a small popup appears on the page asking **Turn on FillForMe for this site?** Click **Turn on**, and the shortcut you pressed runs straight away.
+
+FillForMe gets access to all sites when you install it, which is why turning a site on needs no Chrome prompt. It still only runs on the sites you turned on. If you limit FillForMe's site access in Chrome (puzzle icon → FillForMe), Chrome asks again the first time you turn on a site it no longer has access to.
 
 If a site doesn't look like a dev or test site (its address has none of `localhost`, `127.0.0.1`, `dev`, `test`, `staging`, `uat`, `qa`), FillForMe asks **"This looks like a live site"** the first time you fill or replay there. Once you click **Continue**, it never asks again for that site.
 

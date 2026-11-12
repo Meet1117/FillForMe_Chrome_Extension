@@ -129,7 +129,7 @@ async function loadSites(list) {
   const origins = await send('bg:sites').catch(() => []);
   list.textContent = '';
   if (!origins.length) {
-    list.append(h('li', { class: 'muted', text: 'None yet. Open your app and click Enable at the top.' }));
+    list.append(h('li', { class: 'muted', text: 'None yet. Open your app and press Option+A (Alt+A on Windows), or click Enable at the top.' }));
     return;
   }
   for (const o of origins) {
