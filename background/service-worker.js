@@ -23,7 +23,8 @@ const { Url } = globalThis.FPShared;
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  await Sites.migrateLegacySites().catch(() => {});
   Sites.syncContentScripts().catch((e) => console.warn('[FillForMe] sync failed', e));
   if (reason === 'install') checkShortcuts().catch(() => {});
 });
@@ -172,9 +173,8 @@ async function shortcutText(name) {
 /* ---------- "turn on for this site?" popup ---------- */
 
 /**
- * Show the enable popup on a page FillForMe has no permission for yet.
- * The keyboard shortcut grants temporary access to the tab (activeTab), which is
- * enough to add the popup. Returns false if the page can't be reached.
+ * Show the "turn on for this site?" popup on a page FillForMe isn't turned on for.
+ * Returns false if the page can't be reached (then the side panel opens instead).
  */
 async function showEnablePrompt(tab, command) {
   if (!/^https?:/.test(tab.url)) return false;
@@ -216,9 +216,28 @@ function injectEnablePrompt(tabId, site, pattern) {
   frame.addEventListener('load', () => frame.focus());
 }
 
-/** The popup got permission: register content scripts, then run the shortcut that was pressed. */
-async function onPromptEnabled(tabId) {
-  await Sites.onSiteEnabled(tabId);
+/** Turn a site on from a shortcut (no prompt), then confirm on the page. */
+async function activateSite(tab) {
+  const pattern = Url.originPattern(tab.url);
+  if (!(await Sites.hasAccess(pattern))) {
+    // The user limited FillForMe's site access in Chrome: only Chrome's own prompt can lift that.
+    if (!(await showEnablePrompt(tab, 'activate-site'))) chrome.sidePanel.open({ tabId: tab.id }).catch(() => {});
+    return;
+  }
+  await turnOn(pattern, tab.id);
+}
+
+async function turnOn(pattern, tabId) {
+  await Sites.enableSite(pattern, tabId);
+  notify({ type: 'ui:sites' });
+  const tab = await getTab(tabId);
+  if (tab) await tryTop(tabId, 'toast', `FillForMe is on for ${Url.siteLabel(tab.url)}`, 'success').catch(() => {});
+}
+
+/** The popup turned the site on: register content scripts, then run the shortcut that was pressed. */
+async function onPromptEnabled(tabId, pattern) {
+  await Sites.enableSite(pattern, tabId);
+  notify({ type: 'ui:sites' });
   const { pendingEnable } = await chrome.storage.session.get('pendingEnable');
   await chrome.storage.session.remove('pendingEnable');
   if (!pendingEnable || pendingEnable.tabId !== tabId) return;
@@ -262,8 +281,8 @@ const handlers = {
   'bg:badge-toggle': (msg, sender) => AI.onBadgeToggle(sender.tab.id, sender.frameId, msg.idx, msg.selected),
 
   /* Sites */
-  'bg:site-enabled': (msg) => Sites.onSiteEnabled(msg.tabId),
-  'bg:prompt-enabled': (msg) => onPromptEnabled(msg.tabId),
+  'bg:site-enable': (msg) => turnOn(msg.pattern, msg.tabId),
+  'bg:prompt-enabled': (msg) => onPromptEnabled(msg.tabId, msg.pattern),
   'bg:site-remove': (msg) => Sites.removeSite(msg.pattern),
   'bg:sites': () => Sites.getEnabledOrigins(),
   'bg:site-status': (msg) => Sites.isEnabledUrl(msg.url),
@@ -327,6 +346,7 @@ async function onCommand(command, tabArg) {
   const tab = tabArg?.id ? tabArg : (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0];
   if (!tab || !Url.isSupported(tab.url)) return;
   if (!(await Sites.isEnabledUrl(tab.url))) {
+    if (command === 'activate-site') return void (await activateSite(tab).catch((e) => console.warn('[FillForMe] turn on failed', e)));
     // Ask on the page; fall back to the side panel where the page can't be reached.
     if (!(await showEnablePrompt(tab, command))) chrome.sidePanel.open({ tabId: tab.id }).catch(() => {});
     return;

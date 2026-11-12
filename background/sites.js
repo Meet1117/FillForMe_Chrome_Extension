@@ -1,29 +1,49 @@
 /**
- * Site permissions.
+ * Sites FillForMe is turned on for.
  *
- * FillForMe only runs on sites you enable. Enabling a site grants an optional host
- * permission (requested from the side panel, which has the user gesture). Here we keep
- * the dynamically registered content scripts in sync with the granted origins.
+ * FillForMe gets access to all sites when it is installed (manifest host_permissions),
+ * so turning a site on needs no Chrome prompt: the site is added to a list kept in
+ * storage, and the content scripts are registered for exactly the sites on that list.
+ * On every other site FillForMe does nothing.
+ *
+ * If the user limits FillForMe's site access in Chrome (puzzle menu → "This can read
+ * and change site data"), Chrome withholds access; hasAccess() reports that, and the
+ * enable popup asks Chrome for access again.
  */
 import '../shared/url-utils.js';
 import { CONTENT_FILES, injectContent } from './bridge.js';
 
 const { Url } = globalThis.FPShared;
 const SCRIPT_ID = 'formpilot-content';
-/** Origins granted at install time that are not "sites" (the Groq API). */
-const INTERNAL = ['https://api.groq.com/*'];
+const KEY = 'enabledSites';
+/** Install-time origins that are not "sites": the Groq API and the all-sites grants. */
+const NOT_SITES = ['https://api.groq.com/*', 'http://*/*', 'https://*/*', 'file:///*', '*://*/*', '<all_urls>'];
 
-/** Origin patterns the user enabled, e.g. ["http://localhost/*"]. */
+/** Origin patterns the user turned on, e.g. ["http://localhost/*"]. */
 export async function getEnabledOrigins() {
-  const { origins = [] } = await chrome.permissions.getAll();
-  return origins.filter((o) => !INTERNAL.includes(o));
+  const { [KEY]: list = [] } = await chrome.storage.local.get(KEY);
+  return list;
 }
 
-/** Is FillForMe enabled for this URL? */
+async function saveOrigins(list) {
+  await chrome.storage.local.set({ [KEY]: [...new Set(list)] });
+}
+
+/** Is FillForMe turned on for this URL (and does Chrome let it run there)? */
 export async function isEnabledUrl(url) {
   if (!Url.isSupported(url)) return false;
   const origins = await getEnabledOrigins();
-  return origins.some((p) => Url.patternMatches(p, url));
+  if (!origins.some((p) => Url.patternMatches(p, url))) return false;
+  return hasAccess(Url.originPattern(url));
+}
+
+/** Does Chrome currently let FillForMe run on this origin pattern? */
+export async function hasAccess(pattern) {
+  try {
+    return await chrome.permissions.contains({ origins: [pattern] });
+  } catch {
+    return false;
+  }
 }
 
 /** Re-register content scripts so they match exactly the enabled origins. */
@@ -49,14 +69,25 @@ export async function syncContentScripts() {
   ]);
 }
 
-/** Called after the side panel got a new permission: register + inject into the open tab. */
-export async function onSiteEnabled(tabId) {
+/** Turn a site on: add it to the list, register the content scripts, inject into the open tab. */
+export async function enableSite(pattern, tabId) {
+  const origins = await getEnabledOrigins();
+  if (!origins.includes(pattern)) await saveOrigins([...origins, pattern]);
   await syncContentScripts();
   if (tabId) await injectContent(tabId);
 }
 
-/** Remove a site (revokes the permission). */
+/** Turn a site off. Recordings are kept. */
 export async function removeSite(pattern) {
-  await chrome.permissions.remove({ origins: [pattern] });
+  await saveOrigins((await getEnabledOrigins()).filter((p) => p !== pattern));
+  // Sites turned on by older versions were optional permissions; drop those too.
+  await chrome.permissions.remove({ origins: [pattern] }).catch(() => {});
   await syncContentScripts();
+}
+
+/** Older versions kept each site as an optional host permission: move them onto the list. */
+export async function migrateLegacySites() {
+  const { origins = [] } = await chrome.permissions.getAll();
+  const legacy = origins.filter((o) => !NOT_SITES.includes(o));
+  if (legacy.length) await saveOrigins([...(await getEnabledOrigins()), ...legacy]);
 }

@@ -166,12 +166,16 @@ function enableState() {
     isFile ? h('p', { class: 'helper', style: { marginTop: '10px' }, text: 'Local files also need "Allow access to file URLs" on the extension\'s details page.' }) : null);
 }
 
-/** Must run directly from a click (permission requests need a user gesture). */
+/**
+ * Turn the site on. FillForMe has site access from install, so this needs no prompt,
+ * unless the user limited its site access in Chrome; then Chrome's prompt asks again
+ * (which is why this runs straight from the click).
+ */
 function enableSite() {
   const pattern = Url.originPattern(app.url);
-  chrome.permissions.request({ origins: [pattern] }).then(async (granted) => {
-    if (!granted) return toast('Permission was not granted.', 'error');
-    await send('bg:site-enabled', { tabId: app.tab.id }).catch(() => {});
+  chrome.permissions.contains({ origins: [pattern] }).then((has) => has || chrome.permissions.request({ origins: [pattern] })).then(async (granted) => {
+    if (!granted) return toast('Chrome did not allow FillForMe on this site.', 'error');
+    await send('bg:site-enable', { tabId: app.tab.id, pattern }).catch(() => {});
     if (app.url.startsWith('file:') && !(await chrome.extension.isAllowedFileSchemeAccess())) {
       await confirmBox({
         title: 'One more step for local files',
