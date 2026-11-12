@@ -6,9 +6,10 @@
 
 /** Default shortcut per command (manifest "suggested_key"). On a Mac, Alt is the Option key. */
 export const DEFAULT_SHORTCUTS = {
+  'activate-site': 'Alt+A',
   'ai-fill': 'Alt+Shift+F',
-  'play-last': 'Alt+Shift+P',
-  'toggle-recording': 'Alt+Shift+R',
+  'play-last': 'Alt+Shift+R',
+  'toggle-recording': 'Alt+Shift+P',
 };
 
 export const OS_NAMES = { mac: 'macOS', win: 'Windows', linux: 'Linux', cros: 'ChromeOS' };

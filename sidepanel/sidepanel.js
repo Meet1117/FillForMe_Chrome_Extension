@@ -115,7 +115,7 @@ function renderSiteBar() {
 
 /* ---------- keyboard shortcuts footer ---------- */
 
-const SHORTCUT_NAMES = { 'ai-fill': 'Fill this page', 'play-last': 'Play the last recording', 'toggle-recording': 'Start or stop recording' };
+const SHORTCUT_NAMES = { 'activate-site': 'Turn on for this site', 'ai-fill': 'Fill this page', 'play-last': 'Play the last recording', 'toggle-recording': 'Start or stop recording' };
 let shortcutList = null;
 let deviceOS = '';
 
@@ -130,7 +130,7 @@ async function loadShortcuts() {
 function renderFooter() {
   const foot = $('#shortcuts');
   foot.textContent = '';
-  const show = app.view !== 'settings' && app.supported && app.enabled && shortcutList;
+  const show = app.view !== 'settings' && app.supported && shortcutList;
   foot.classList.toggle('hidden', !show);
   if (!show) return;
   foot.append(

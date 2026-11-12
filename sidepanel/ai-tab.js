@@ -193,7 +193,7 @@ async function setSetting(patch) {
 }
 
 async function pickNext() {
-  toast('Click the Next button on the page. Press Esc to cancel.', 'info', 4000);
+  toast('Click the Next button on the page. Press Esc to cancel.', 'info');
   try {
     const picked = await send('bg:pick-next', { tabId: app.tab.id });
     if (picked) {
@@ -233,16 +233,16 @@ async function doFill() {
   try {
     if (app.settings.previewBeforeFill && !allSteps) {
       const gen = await send('bg:ai-generate', { tabId: app.tab.id, context });
-      if (gen.notice) toast(gen.notice, 'info', 6000);
+      if (gen.notice) toast(gen.notice, 'info');
       app.ai.preview = { values: gen.values, source: gen.source };
       return;
     }
     const res = await send('bg:ai-fill', { tabId: app.tab.id, context, allSteps });
     app.ai.result = res;
-    if (res.notice) toast(res.notice, res.errorCode && res.errorCode !== 'no_key' ? 'error' : 'info', 7000);
-    else if (allSteps) toast(res.message || 'Done', 'info', 5000);
+    if (res.notice) toast(res.notice, res.errorCode && res.errorCode !== 'no_key' ? 'error' : 'info');
+    else if (allSteps) toast(res.message || 'Done', 'info');
   } catch (e) {
-    toast(e.message, 'error', 6000);
+    toast(e.message, 'error');
   } finally {
     app.ai.busy = false;
     app.ai.progress = '';

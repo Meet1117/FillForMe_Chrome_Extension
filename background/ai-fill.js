@@ -365,7 +365,7 @@ export async function fillAllSteps(tabId, { context = '' } = {}) {
     stopFlags.delete(tabId);
   }
   const tabNow = await getTab(tabId);
-  if (tabNow) callFrame(tabId, 0, 'toast', message, message.startsWith('All') ? 'success' : 'info', 5000).catch(() => {});
+  if (tabNow) callFrame(tabId, 0, 'toast', message, message.startsWith('All') ? 'success' : 'info').catch(() => {});
   return { steps, filled: all.filter((r) => r.ok).length, results: all, notice, message };
 }
 

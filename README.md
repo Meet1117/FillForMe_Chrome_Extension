@@ -134,15 +134,20 @@ If there's no key, a rate limit, a network problem, or a bad AI response, you ge
 
 | Windows / Linux | Mac | Action |
 |---|---|---|
+| `Alt+A` | `⌥A` (Option+A) | Turn on FillForMe for this site |
 | `Alt+Shift+F` | `⌥⇧F` (Option+Shift+F) | Show the fields on the page, then press **Enter** to fill them (Esc cancels) |
-| `Alt+Shift+P` | `⌥⇧P` (Option+Shift+P) | Play the last-used recording for this site |
-| `Alt+Shift+R` | `⌥⇧R` (Option+Shift+R) | Start / stop recording |
+| `Alt+Shift+R` | `⌥⇧R` (Option+Shift+R) | Play the last-used recording for this site |
+| `Alt+Shift+P` | `⌥⇧P` (Option+Shift+P) | Start / stop recording |
 
 FillForMe detects your device and shows the matching keys in the panel.
 
 **Fill shortcut in two steps:** the first press marks every field it will fill and shows "Press Enter to fill". Click a mark to leave a field out, then press **Enter** (or the shortcut again) to fill. **Esc** cancels. While FillForMe is waiting, Enter is caught by FillForMe, so it won't submit the page's form.
 
-They are listed at the bottom of the panel. Click **Change** there (or go to `chrome://extensions/shortcuts`) to change them.
+These shortcuts are set automatically when you load FillForMe. They are listed at the bottom of the panel. Click **Change** there (or go to `chrome://extensions/shortcuts`) to change them.
+
+Chrome skips a default shortcut if Chrome or another extension already uses that key. If that happens when you install FillForMe, the shortcuts page opens so you can choose another key. Chrome only applies the defaults on a fresh install: clicking **Reload** on an extension that is already loaded keeps its current shortcuts. To get the defaults back, click **Remove**, then **Load unpacked** again.
+
+> On a Mac, Option+A normally types "å". While FillForMe uses Option+A, Chrome catches it, so you can't type "å" in Chrome. Pick another key on the shortcuts page if you need it.
 
 ## Share with your team
 

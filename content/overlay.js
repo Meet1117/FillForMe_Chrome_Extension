@@ -42,10 +42,6 @@
     .bar button:hover { background: rgba(255,255,255,.22); }
     .bar button.danger { background: #ef4444; }
     .bar button.primary { background: #7c5cff; }
-    .toasts { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-    .toast { background: #1f1d2b; color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,.3); max-width: 340px; animation: in .15s ease-out; }
-    .toast.success { border-left: 4px solid #22c55e; } .toast.error { border-left: 4px solid #ef4444; } .toast.info { border-left: 4px solid #7c5cff; }
-    @keyframes in { from { opacity: 0; transform: translateY(-6px); } }
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); pointer-events: auto; display: grid; place-items: center; }
     .dialog { background: #fffbeb; color: #422006; border: 1px solid #fcd34d; border-radius: 12px; padding: 18px; width: min(380px, calc(100vw - 32px)); box-shadow: 0 12px 40px rgba(0,0,0,.3); font-size: 14px; }
     .dialog h3 { margin: 0 0 6px; font-size: 15px; } .dialog p { margin: 0 0 12px; line-height: 1.4; }
@@ -294,16 +290,11 @@
 
   /* ---------- toast ---------- */
 
-  let toastBox = null;
-  function toast(text, kind = 'info', ms = 3500) {
-    ensureHost();
-    if (!toastBox || !toastBox.isConnected) {
-      toastBox = el('div', 'toasts');
-      layer.append(toastBox);
-    }
-    const t = el('div', `toast ${kind}`, text);
-    toastBox.append(t);
-    setTimeout(() => t.remove(), ms);
+  /** Bottom-centre toast (see shared/toast.js). kind: info | success | warning | error. */
+  let toaster = null;
+  function toast(message, kind = 'info', ms) {
+    if (!toaster) toaster = globalThis.FPShared.Toast.create(() => { ensureHost(); return layer; });
+    toaster.show(message, kind, ms);
   }
 
   /* ---------- confirm dialog ---------- */

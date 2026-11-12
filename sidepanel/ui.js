@@ -2,6 +2,7 @@
  * Tiny UI toolkit for the side panel: DOM builder, icons, toasts, modals,
  * messaging to the service worker, and a few helpers.
  */
+import '../shared/toast.js';
 
 /**
  * Create an element. props: { class, text, html?, on: { event: fn }, attrs, style, ...domProps }
@@ -84,11 +85,11 @@ export async function send(type, payload = {}) {
 
 /* ---------- toasts ---------- */
 
-export function toast(message, kind = 'info', ms = 3200) {
-  const box = document.getElementById('toasts');
-  const t = h('div', { class: `toast ${kind}`, attrs: { role: 'status' }, text: message });
-  box.append(t);
-  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 200); }, ms);
+/** Bottom-centre toast (see shared/toast.js). kind: info | success | warning | error. */
+let toaster = null;
+export function toast(message, kind = 'info', ms) {
+  if (!toaster) toaster = globalThis.FPShared.Toast.create(document.body);
+  return toaster.show(message, kind, ms);
 }
 
 /* ---------- modals ---------- */
